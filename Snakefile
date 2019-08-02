@@ -1,4 +1,4 @@
-cancerLi = "BRCA".split()
+cancerLi = "BRCA LAML".split()
 
 nwkCorr_corrCut="0.5"
 nwkCorr_FCcut="0.15"
@@ -7,7 +7,7 @@ ppi="String_db/filtered_ppi.nwk"
 
 rule all:
     input:
-        expand("{cancer}.fisher.out",cancer=cancerLi),
+        "jaccard_result"
 
 rule nwk_corr:
     input:  
@@ -85,7 +85,52 @@ rule fisher:
         """
         python fisher.py -methyl {input.methyl} -community {input.comm} -o {output}
         """
- 
+
+rule cnt_gene:
+    input:
+        cancer_comm = "{cancer}.ttest_go_pval_cut_community"
+    params:
+        cancer = "{cancer}"
+    output:
+        cancer_cnt = temp("{cancer}.gene_cnt_per_cluster")
+    run:
+        import pandas as pd 
+        d={}
+        df=pd.read_csv(input.cancer_comm,sep='\t')
+        df2=pd.DataFrame(df.groupby('community')['gene'].apply(list))
+        for comID in df2.index:
+            d['{}_{}'.format(params.cancer,comID)] = [df2.loc[comID,'gene']]
+        pd.DataFrame.from_dict(d, orient='index',columns=['geneList']).to_csv(output.cancer_cnt,header=False,sep='\t')    
+
+rule concat_cnt:
+    input:
+        expand("{cancer}.gene_cnt_per_cluster", cancer=cancerLi)
+    output:
+        temp("gene_cnt_per_cluster")
+    shell:
+        """
+        cat {input} >> {output}
+        """
+
+rule jaccard:
+    input:
+        pan_cnt = "gene_cnt_per_cluster"
+    output:
+        jac = "jaccard_result"
+    run:
+        import pandas as pd
+        import numpy as np
+        from itertools import combinations
+        d1=pd.read_csv(input.pan_cnt,sep='\t',header=None).set_index(0).T.to_dict('list')
+        d = {k:v[0].strip("[]").split(',') for k,v in d1.items()}
+        print(d)
+        nC2=combinations(d.keys(),2)
+        with open(output.jac,'w') as f:
+            for pair in nC2:
+                set1,set2=d[pair[0]],d[pair[1]]
+                j_idx=float(np.intersect1d(set1,set2).size)/float(np.union1d(set1,set2).size)
+                print ("{}   {}  {}".format(pair[0],pair[1],j_idx), file=f)
+
 rule clear:
     input:
         expand("{cancer}.GO",cancer=cancerLi)
