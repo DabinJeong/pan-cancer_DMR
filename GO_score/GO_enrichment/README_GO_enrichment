@@ -1,0 +1,11 @@
+# GO enrichment with genes
+python ./myGOenrichment.py input.example1.genes.arabidopsis.txt -trait2genes GOBPname2gene.arabidopsis.txt -pcut 0.05 -topK 10
+
+# GO enrichment with gene2groups
+python ./myGOenrichment.py input.example2.gene2groups.arabidopsis.txt -trait2genes GOBPname2gene.arabidopsis.txt -pcut 0.05 -topK 10
+
+# KEGG pathway enrichment with genes
+python ./myGOenrichment.py input.example1.genes.arabidopsis.txt -trait2genes pathwayname2gene.ath.txt -pcut 0.05 -topK 10
+
+# KEGG pathway enrichment with gene2groups
+python ./myGOenrichment.py input.example2.genegroups.arabidopsis.txt -trait2genes pathwayname2gene.ath.txt -pcut 0.05 -topK 10

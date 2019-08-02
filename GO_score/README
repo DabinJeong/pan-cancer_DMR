@@ -1,0 +1,3 @@
+# GO enrichment with gene2groups
+python ./myGOenrichment_DB.py cancer.community.example -sym2entrez cancer.symbol2entrez -trait2genes GOBPname2gene.human.BP.txt -pcut 0.05 -s 1 -topK 1 
+

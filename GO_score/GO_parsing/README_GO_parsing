@@ -1,0 +1,13 @@
+#go.obo
+http://purl.obolibrary.org/obo/go.obo
+
+#gene2go_2016.10.27
+ftp://ftp.ncbi.nih.gov/gene/DATA/gene2go.gz
+
+#gene2go_2016.10.27.selected
+grep '^9606\t' gene2go_2016.10.27 | cut -f 2,3 > gene2go_2016.10.27.selected
+
+# how to run
+GOout.py gene2go_2016.10.27.selected go.obo -namespace BP -outfmt GOname2genes -o GOBPname2genes.human.BP.txt
+GOout.py gene2go_2016.10.27.selected go.obo -namespace CC -outfmt GOname2genes -o GOBPname2genes.human.CC.txt
+GOout.py gene2go_2016.10.27.selected go.obo -namespace MF -outfmt GOname2genes -o GOBPname2genes.human.MF.txt
